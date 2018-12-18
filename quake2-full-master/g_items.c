@@ -16,6 +16,7 @@ void Weapon_Grenade (edict_t *ent);
 void Weapon_GrenadeLauncher (edict_t *ent);
 void Weapon_Railgun (edict_t *ent);
 void Weapon_BFG (edict_t *ent);
+void Weapon_Null(edict_t *ent);
 
 gitem_armor_t jacketarmor_info	= { 25,  50, .30, .00, ARMOR_JACKET};
 gitem_armor_t combatarmor_info	= { 50, 100, .60, .30, ARMOR_COMBAT};
@@ -52,7 +53,6 @@ gitem_t	*GetItemByIndex (int index)
 /*
 ===============
 FindItemByClassname
-
 ===============
 */
 gitem_t	*FindItemByClassname (char *classname)
@@ -482,7 +482,7 @@ qboolean Pickup_Ammo (edict_t *ent, edict_t *other)
 
 	if (weapon && !oldcount)
 	{
-		if (other->client->pers.weapon != ent->item && ( !deathmatch->value || other->client->pers.weapon == FindItem("blaster") ) )
+		if (other->client->pers.weapon != ent->item && (!deathmatch->value || other->client->pers.weapon == FindItem("Hands")))
 			other->client->newweapon = ent->item;
 	}
 
@@ -1266,9 +1266,26 @@ gitem_t	itemlist[] =
 	// WEAPONS 
 	//
 
-/* weapon_blaster (.3 .3 1) (-16 -16 -16) (16 16 16)
-always owned, never in the world
-*/
+{
+	"weapon_null",      
+	NULL,                    
+	Use_Weapon,             
+	NULL,                    
+	Weapon_Null,            
+	"misc/w_pkup.wav",
+	"models/nullweapon.md2", 0,
+	"models/nullweapon.md2", 
+	"w_blaster",            
+	"Hands",            
+	0,
+	0,
+	NULL,
+	IT_WEAPON | IT_STAY_COOP,
+	WEAP_BLASTER,          
+	NULL,
+	0,
+	""
+},
 	{
 		"weapon_blaster", 
 		NULL,

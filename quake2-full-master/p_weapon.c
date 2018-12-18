@@ -244,13 +244,13 @@ void NoAmmoWeaponChange (edict_t *ent)
 		ent->client->newweapon = FindItem ("super shotgun");
 		return;
 	}
-	if ( ent->client->pers.inventory[ITEM_INDEX(FindItem("shells"))]
-		&&  ent->client->pers.inventory[ITEM_INDEX(FindItem("shotgun"))] )
+	if (ent->client->pers.inventory[ITEM_INDEX(FindItem("shells"))]
+		&& ent->client->pers.inventory[ITEM_INDEX(FindItem("shotgun"))])
 	{
-		ent->client->newweapon = FindItem ("shotgun");
+		ent->client->newweapon = FindItem("shotgun");
 		return;
 	}
-	ent->client->newweapon = FindItem ("blaster");
+	ent->client->newweapon = FindItem("Hands");
 }
 
 /*
@@ -1409,6 +1409,57 @@ void Weapon_BFG (edict_t *ent)
 	static int	fire_frames[]	= {9, 17, 0};
 
 	Weapon_Generic (ent, 8, 32, 55, 58, pause_frames, fire_frames, weapon_bfg_fire);
+}
+void Null_Fire(edict_t *ent)
+{
+	int	i;
+	vec3_t		start;
+	vec3_t		forward, right;
+	vec3_t		angles;
+	int			damage = 5; //change to whatever
+	int			kick = 2; //ditto here
+	vec3_t		offset;
+
+	if (ent->client->ps.gunframe == 11) //rename 11 to after you're attack frame
+	{
+		ent->client->ps.gunframe++;
+		return;
+	}
+
+	AngleVectors(ent->client->v_angle, forward, right, NULL);
+
+	VectorScale(forward, -2, ent->client->kick_origin);
+	ent->client->kick_angles[0] = -2;
+
+	VectorSet(offset, 0, 8, ent->viewheight - 8);
+	P_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start); //where does the hit start from?
+
+	if (is_quad)
+	{
+		damage *= 4;
+		kick *= 4;
+	}
+
+	// get start / end positions
+	VectorAdd(ent->client->v_angle, ent->client->kick_angles, angles);
+	AngleVectors(angles, forward, right, NULL);
+	VectorSet(offset, 0, 8, ent->viewheight - 8);
+	P_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
+	fire_punch(ent, start, forward, 45, damage, 200, 1, MOD_PUNCH); // yep, matches the fire_ function	
+
+	ent->client->ps.gunframe++; //NEEDED
+	PlayerNoise(ent, start, PNOISE_WEAPON); //NEEDED
+
+	//	if (! ( (int)dmflags->value & DF_INFINITE_AMMO ) )
+	//		ent->client->pers.inventory[ent->client->ammo_index]--; // comment these out to prevent the Minus NULL Ammo bug
+}
+
+void Weapon_Null(edict_t *ent)
+{
+	static int	pause_frames[] = { 10, 21, 0 };
+	static int	fire_frames[] = { 6, 0 }; // Frame stuff here
+
+	Weapon_Generic(ent, 3, 9, 22, 24, pause_frames, fire_frames, Null_Fire);
 }
 
 
